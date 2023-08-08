@@ -33,6 +33,7 @@ runs:
     - name: Pull Vercel Environment Information
       if: contains(inputs.affected_apps, inputs.app_name)
       run: vercel pull --yes --environment=production --token=${{ inputs.vercel_token }}
+      shell: bash
       env:
         VERCEL_ORG_ID: ${{ inputs.vercel_org_id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
@@ -40,6 +41,7 @@ runs:
     - name: Build Project Artifacts
       if: contains(inputs.affected_apps, inputs.app_name)
       run: vercel build ${{ (inputs.is_production == 'true') && '--prod' }} --token=${{ inputs.vercel_token }}
+      shell: bash
       env:
         VERCEL_ORG_ID: ${{ inputs.vercel_org_id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
@@ -47,6 +49,7 @@ runs:
     - name: Deploy Preview App
       if: contains(inputs.affected_apps, inputs.app_name)
       id: deploy-preview
+      shell: bash
       run: |
         URL=$(vercel deploy ${{ (inputs.is_production == 'true') && '--prebuilt --prod' }} --token=${{ inputs.vercel_token }})
         echo "Preview URL: $URL"
