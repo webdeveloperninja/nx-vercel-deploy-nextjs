@@ -27,18 +27,35 @@ Set this to `false` if it's not a production build. Defaults to `true`.
 ### `deployed_url`
 URL of the deployed preview app.
 
+### `did_deploy`
+A boolean value indicating if the app was deployed. Returns `true` if the app was deployed.
+
 ## Example Usage
 
 ```yaml
-- name: Vercel Deployment
-  uses: your-username/your-repo@main
-  with:
-    affected_apps: "${{ steps.generate-affected-projects.outputs.affected_projects }}"
-    vercel_token: ${{ secrets.VERCEL_TOKEN }}
-    vercel_org_id: '9seUj4PGRBp6DIdfhFIbE0XG'
-    vercel_project_id: 'prj_QvSp6OnrHNW6J4KAdwqdBC4oBSuS'
-    app_name: 'portal'
-    is_production: 'true'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Other steps here ...
+
+      - name: Vercel Deployment
+        id: vercel-deploy
+        uses: webdeveloperninja/nx-vercel-deploy-nextjs@main
+        with:
+          affected_apps: "${{ steps.generate-affected-projects.outputs.affected_projects }}"
+          vercel_token: ${{ secrets.VERCEL_TOKEN }}
+          vercel_org_id: '9seUj4PGRBp6DIdfhFIbE0XG'
+          vercel_project_id: 'prj_QvSp6OnrHNW6J4KAdwqdBC4oBSuS'
+          app_name: 'portal'
+          is_production: 'true'
+
+      # Use the outputs in the next step
+      - name: Print Deployed URL and Deployment Status
+        run: |
+          echo "Deployed URL: ${{ steps.vercel-deploy.outputs.deployed_url }}"
+          echo "Did Deploy: ${{ steps.vercel-deploy.outputs.did_deploy }}"
+
 ```
 
 
