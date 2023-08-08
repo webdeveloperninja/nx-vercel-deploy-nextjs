@@ -1,0 +1,48 @@
+# Vercel Deployment Action
+
+This action handles pulling, building, and deploying a Vercel project. It can be used to manage different steps based on the affected apps and a specific app name.
+
+## Inputs
+
+### `affected_apps`
+A JSON string that is the result of running `nx show projects --affected --json`. This input determines the apps affected by the current changes and thus the steps that will be executed.
+
+### `vercel_token`
+Your Vercel token for authentication.
+
+### `vercel_org_id`
+Your Vercel Organization ID.
+
+### `vercel_project_id`
+Your Vercel Project ID.
+
+### `app_name`
+The specific app name to deploy. Use this input to specify the app you want to deploy within the affected apps.
+
+### `is_production` (Optional)
+Set this to `false` if it's not a production build. Defaults to `true`.
+
+## Outputs
+
+### `deployed_url`
+URL of the deployed preview app.
+
+## Example Usage
+
+```yaml
+- name: Vercel Deployment
+  uses: your-username/your-repo@main
+  with:
+    affected_apps: "${{ steps.generate-affected-projects.outputs.affected_projects }}"
+    vercel_token: ${{ secrets.VERCEL_TOKEN }}
+    vercel_org_id: '9seUj4PGRBp6DIdfhFIbE0XG'
+    vercel_project_id: 'prj_QvSp6OnrHNW6J4KAdwqdBC4oBSuS'
+    app_name: 'portal'
+    is_production: 'true'
+```
+
+
+## How to Get affected_apps
+You can generate the affected_apps input by running the following command:
+
+`nx affected:apps --plain`
