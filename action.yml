@@ -1,0 +1,54 @@
+name: 'Vercel Deployment Action'
+description: 'Handles pulling, building, and deploying a Vercel project'
+inputs:
+  affected_apps:
+    description: 'Comma-separated list of affected app names'
+    required: true
+  vercel_token:
+    description: 'Vercel token for authentication'
+    required: true
+  vercel_org_id:
+    description: 'Vercel Organization ID'
+    required: true
+  vercel_project_id:
+    description: 'Vercel Project ID'
+    required: true
+  app_name:
+    description: 'App name for specific steps'
+    required: true
+  is_production:
+    description: 'Is this a production build?'
+    required: false
+    default: 'true'
+
+outputs:
+  deployed_url:
+    description: 'URL of the deployed preview app'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Pull Vercel Environment Information
+      if: contains(inputs.affected_apps, inputs.app_name)
+      run: vercel pull --yes --environment=production --token=${{ inputs.vercel_token }}
+      env:
+        VERCEL_ORG_ID: ${{ inputs.vercel_org_id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
+
+    - name: Build Project Artifacts
+      if: contains(inputs.affected_apps, inputs.app_name)
+      run: vercel build ${{ (inputs.is_production == 'true') && '--prod' }} --token=${{ inputs.vercel_token }}
+      env:
+        VERCEL_ORG_ID: ${{ inputs.vercel_org_id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
+
+    - name: Deploy Preview App
+      if: contains(inputs.affected_apps, inputs.app_name)
+      id: deploy-preview
+      run: |
+        URL=$(vercel deploy ${{ (inputs.is_production == 'true') && '--prebuilt --prod' }} --token=${{ inputs.vercel_token }})
+        echo "Preview URL: $URL"
+        echo "deployed_url=$URL" >> $GITHUB_ENV
+      env:
+        VERCEL_ORG_ID: ${{ inputs.vercel_org_id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel_project_id }}
